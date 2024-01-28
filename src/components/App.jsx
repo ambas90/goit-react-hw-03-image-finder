@@ -1,10 +1,13 @@
 import { Component } from 'react';
+import './App.css';
 import Searchbar from './Searchbar';
 import axios from 'axios';
 import ImageGallery from './ImageGallery';
+import ImageGalleryItem from './ImageGalleryItem';
 import Button from './Button';
 import Loader from './Loader';
 import Modal from './Modal';
+import Notiflix from 'notiflix';
 
 axios.defaults.baseURL = 'https://pixabay.com/api/';
 const apiKey = '41220489-c07c1811e7eaf580f7e0f31fa';
@@ -18,6 +21,8 @@ export default class App extends Component {
     activePage: 1,
     searchQuery: '',
     totalImages: 0,
+    modalIsOpen: false,
+    largeImageUrl: '',
   };
 
   searchImages = query => {
@@ -50,6 +55,19 @@ export default class App extends Component {
     }
   };
 
+  showModal = largeImageUrl => {
+    this.setState({
+      modalIsOpen: true,
+      largeImageUrl: largeImageUrl,
+    });
+  };
+
+  closeModal = () => {
+    this.setState({
+      modalIsOpen: false,
+    });
+  };
+
   getImages = async () => {
     this.setState({
       isLoading: true,
@@ -67,6 +85,12 @@ export default class App extends Component {
         },
       });
       console.log(data);
+      if (data.total === 0) {
+        Notiflix.Notify.warning(`
+I couldn't find any images matching ${searchQuery}`);
+      } else {
+        Notiflix.Notify.success(`I found ${data.total} images`);
+      }
       this.setState(prevState => ({
         images: [...prevState.images, ...data.hits],
         totalImages: data.total,
@@ -83,17 +107,30 @@ export default class App extends Component {
   };
 
   render() {
-    const { images, isLoading } = this.state;
+    const { images, isLoading, modalIsOpen, largeImageUrl, error } = this.state;
     return (
-      <>
+      <div className="app">
         <Searchbar onSubmit={this.searchImages} />
-        <ImageGallery images={images} />
+        <ImageGallery>
+          {images.map(image => (
+            <ImageGalleryItem
+              key={image.id}
+              prewImgUrl={image.webformatURL}
+              largeImgUrl={image.largeImageURL}
+              tags={image.tags}
+              handleClick={this.showModal}
+            />
+          ))}
+        </ImageGallery>
         {isLoading && <Loader />}
+        {error && <p>Sth went wrong...{error.message}</p>}
         {this.showLoadMore() > 0 && (
           <Button handleClick={this.loadMoreImages} />
         )}
-        <Modal />
-      </>
+        {modalIsOpen && (
+          <Modal src={largeImageUrl} handleClick={this.closeModal} />
+        )}
+      </div>
     );
   }
 }

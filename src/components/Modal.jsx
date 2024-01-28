@@ -1,9 +1,10 @@
-const Modal = () => {
+import './Modal.css';
+
+const Modal = ({ handleClick, src }) => {
   return (
-    <div className="overlay">
+    <div className="overlay" onClick={handleClick}>
       <div className="modal">
-        <img src="" alt="" />
-        <p> Jestem Modalem</p>
+        <img src={src} alt="" />
       </div>
     </div>
   );

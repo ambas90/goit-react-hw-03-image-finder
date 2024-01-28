@@ -1,23 +1,7 @@
-import PropTypes from 'prop-types';
-import ImageGalleryItem from './ImageGalleryItem';
+import './ImageGallery.css';
 
-const ImageGallery = ({ images }) => {
-  return (
-    <ul className="gallery">
-      {images.map(image => (
-        <ImageGalleryItem
-          id={image.id}
-          prewImgUrl={image.webformatURL}
-          largeImgUrl={image.largeImageURL}
-          tags={image.tags}
-        />
-      ))}
-    </ul>
-  );
+const ImageGallery = ({ children }) => {
+  return <ul className="imageGallery ">{children}</ul>;
 };
 
 export default ImageGallery;
-
-ImageGallery.propTypes = {
-  images: PropTypes.array.isRequired,
-};
