@@ -3,6 +3,8 @@ import Searchbar from './Searchbar';
 import axios from 'axios';
 import ImageGallery from './ImageGallery';
 import Button from './Button';
+import Loader from './Loader';
+import Modal from './Modal';
 
 axios.defaults.baseURL = 'https://pixabay.com/api/';
 const apiKey = '41220489-c07c1811e7eaf580f7e0f31fa';
@@ -13,22 +15,62 @@ export default class App extends Component {
     images: [],
     isLoading: false,
     error: null,
-    // activePage: 1,
-    // numberOfPafes: 0,
+    activePage: 1,
+    searchQuery: '',
+    totalImages: 0,
   };
 
-  getImages = async searchTerm => {
+  searchImages = query => {
+    this.setState({
+      images: [],
+      activePage: 1,
+      searchQuery: query,
+    });
+  };
+
+  loadMoreImages = () => {
+    this.setState(prev => ({ activePage: prev.activePage + 1 }));
+  };
+
+  componentDidUpdate = (prevProps, prevState) => {
+    const prevQuery = prevState.searchQuery;
+    const nextQuery = this.state.searchQuery;
+    const prevPage = prevState.activePage;
+    const nexPage = this.state.activePage;
+
+    if (prevQuery !== nextQuery || prevPage !== nexPage) {
+      this.getImages();
+    }
+  };
+
+  showLoadMore = () => {
+    const { images, totalImages, activePage } = this.state;
+    if (images.length > 0 && totalImages - perPage * activePage > 0) {
+      return true;
+    }
+  };
+
+  getImages = async () => {
     this.setState({
       isLoading: true,
     });
+    const { activePage, searchQuery } = this.state;
     try {
-      const { data } = await axios(
-        `?key=${apiKey}&q=${searchTerm}&image_type=photo&orientation=horizontal&per_page=${perPage}`
-      );
-      console.log(data);
-      this.setState({
-        images: data.hits,
+      const { data } = await axios({
+        params: {
+          q: searchQuery,
+          page: activePage,
+          key: apiKey,
+          image_type: 'photo',
+          orientation: 'horizontal',
+          per_page: perPage,
+        },
       });
+      console.log(data);
+      this.setState(prevState => ({
+        images: [...prevState.images, ...data.hits],
+        totalImages: data.total,
+      }));
     } catch (error) {
       this.setState({
         error,
@@ -40,17 +82,17 @@ export default class App extends Component {
     }
   };
 
-  loadMoreImages = () => {
-    console.log('nacisnieto load more');
-  };
-
   render() {
-    const { images } = this.state;
+    const { images, isLoading } = this.state;
     return (
       <>
-        <Searchbar onSubmit={this.getImages} />
+        <Searchbar onSubmit={this.searchImages} />
         <ImageGallery images={images} />
-        <Button handleClick={this.loadMoreImages} />
+        {isLoading && <Loader />}
+        {this.showLoadMore() > 0 && (
+          <Button handleClick={this.loadMoreImages} />
+        )}
+        <Modal />
       </>
     );
   }
