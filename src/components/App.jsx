@@ -72,6 +72,12 @@ export default class App extends Component {
     });
   };
 
+  handleClickModal = evt => {
+    if (evt.target.nodeName !== 'IMG') {
+      this.closeModal();
+    }
+  };
+
   handleKeyDown = evt => {
     if (evt.key === 'Escape' && this.state.modalIsOpen) {
       this.closeModal();
@@ -145,7 +151,7 @@ I couldn't find any images`);
           <Button handleClick={this.loadMoreImages} />
         )}
         {modalIsOpen && (
-          <Modal src={largeImageUrl} handleClick={this.closeModal} />
+          <Modal src={largeImageUrl} handleClick={this.handleClickModal} />
         )}
       </div>
     );
