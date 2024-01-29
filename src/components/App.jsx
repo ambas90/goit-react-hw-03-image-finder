@@ -26,10 +26,14 @@ export default class App extends Component {
   };
 
   searchImages = query => {
+    if (query.trim() === '') {
+      Notiflix.Notify.info('Sorry, please provide a search word');
+      return;
+    }
     this.setState({
       images: [],
       activePage: 1,
-      searchQuery: query,
+      searchQuery: `${Date.now()}/${query}`,
     });
   };
 
@@ -68,15 +72,31 @@ export default class App extends Component {
     });
   };
 
+  handleKeyDown = evt => {
+    if (evt.key === 'Escape' && this.state.modalIsOpen) {
+      this.closeModal();
+    }
+  };
+
+  componentDidMount() {
+    window.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyDown);
+  }
+
   getImages = async () => {
     this.setState({
       isLoading: true,
     });
     const { activePage, searchQuery } = this.state;
+    const separated = searchQuery.split('/');
+    const exstractedQuery = separated[1];
     try {
       const { data } = await axios({
         params: {
-          q: searchQuery,
+          q: exstractedQuery,
           page: activePage,
           key: apiKey,
           image_type: 'photo',
@@ -84,12 +104,9 @@ export default class App extends Component {
           per_page: perPage,
         },
       });
-      console.log(data);
       if (data.total === 0) {
         Notiflix.Notify.warning(`
-I couldn't find any images matching ${searchQuery}`);
-      } else {
-        Notiflix.Notify.success(`I found ${data.total} images`);
+I couldn't find any images`);
       }
       this.setState(prevState => ({
         images: [...prevState.images, ...data.hits],

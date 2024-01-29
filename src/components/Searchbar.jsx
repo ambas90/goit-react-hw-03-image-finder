@@ -4,19 +4,21 @@ import './Searchbar.css';
 
 export default class Searchbar extends Component {
   state = {
-    imputText: '',
+    inputText: '',
   };
 
   handleChange = evt => {
-    this.setState({ imputText: evt.target.value });
+    this.setState({ inputText: evt.target.value });
   };
 
   handleSubmit = evt => {
+    const form = evt.currentTarget;
     evt.preventDefault();
-    this.props.onSubmit(this.state.imputText);
+    this.props.onSubmit(this.state.inputText);
     this.setState({
-      imputText: '',
+      inputText: '',
     });
+    form.reset();
   };
 
   render() {
