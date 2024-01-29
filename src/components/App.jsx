@@ -1,12 +1,12 @@
 import { Component } from 'react';
 import './App.css';
-import Searchbar from './Searchbar';
+import Searchbar from './SearchBar/Searchbar';
 import axios from 'axios';
-import ImageGallery from './ImageGallery';
-import ImageGalleryItem from './ImageGalleryItem';
-import Button from './Button';
-import Loader from './Loader';
-import Modal from './Modal';
+import ImageGallery from './ImageGallery/ImageGallery';
+import ImageGalleryItem from './ImageGallery/ImageGalleryItem/ImageGalleryItem';
+import Button from './Button/Button';
+import Loader from './Loader/Loader';
+import Modal from './Modal/Modal';
 import Notiflix from 'notiflix';
 
 axios.defaults.baseURL = 'https://pixabay.com/api/';
